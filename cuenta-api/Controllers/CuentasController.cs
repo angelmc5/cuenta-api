@@ -77,7 +77,7 @@ namespace cuenta_api.Controllers
             var cuenta = _mapper.Map<Cuenta>(crearCuentaDto);
             if (!_ctaRepo.CrearCuenta(cuenta))
             {
-                ModelState.AddModelError("", $"Algo salió mail guardando el resgistro {cuenta.Numero}!");
+                ModelState.AddModelError("", $"Error guardando el registro {cuenta.Numero}!");
                 return StatusCode(500, ModelState);
 
             }
@@ -108,7 +108,7 @@ namespace cuenta_api.Controllers
             var cuenta = _mapper.Map<Cuenta>(cuentaDto);
             if (!_ctaRepo.ActualizarCuenta(cuenta))
             {
-                ModelState.AddModelError("", $"Algo salió mail actualizando el resgistro {cuenta.Numero}!");
+                ModelState.AddModelError("", $"Error actualizando el registro {cuenta.Numero}!");
                 return StatusCode(500, ModelState);
 
             }
@@ -130,7 +130,7 @@ namespace cuenta_api.Controllers
 
             if (!_ctaRepo.BorrarCuenta(cuenta))
             {
-                ModelState.AddModelError("", $"Algo salió mail eliminado el resgistro {cuenta.Numero}!");
+                ModelState.AddModelError("", $"Error al eliminar el registro {cuenta.Numero}!");
                 return StatusCode(500, ModelState);
 
             }

@@ -8,11 +8,18 @@ namespace cuenta_api.Modelos.Dtos
         public int Id { get; set; }
 
         public DateTime Fecha { get; set; }
-        public string TipoMovimiento { get; set; }
 
-        public Double Valor { get; set; }
+        public enum TipoMovimientos
+        {
+            Deposito,
+            Retiro
+        }
 
-        public Double Saldo { get; set; }
+        public TipoMovimientos TipoMovimiento { get; set; }
+
+        public float Valor { get; set; }
+
+        public float Saldo { get; set; }
 
         public int cuentaId { get; set; }
     }

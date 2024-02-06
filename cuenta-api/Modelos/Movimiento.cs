@@ -10,10 +10,17 @@ namespace cuenta_api.Modelos
 
         [Required]
         public DateTime Fecha { get; set; }
-        public string TipoMovimiento { get; set; }
 
-        public Double Valor { get; set; }
-        public Double Saldo { get; set; }
+        public enum TipoMovimientos
+        {
+            Deposito,
+            Retiro
+        }
+
+        public TipoMovimientos TipoMovimiento { get; set; }
+
+        public float Valor { get; set; }
+        public float Saldo { get; set; }
 
         [ForeignKey("cuentaId")]
         public int cuentaId { get; set; }

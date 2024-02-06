@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(Opciones =>
 //Agregamos las clase de repositorios
 builder.Services.AddScoped<ICuentaRepositorio, CuentaRepositorio>();
 builder.Services.AddScoped<IMovimientoRepositorio, MovimientoRepositorio>();
+builder.Services.AddScoped<IReporteRepositorio, ReporteRepositorio>();
 
 //Agregarmos el automapper para la implementación de Dtos esquema repositorio paterm
 builder.Services.AddAutoMapper(typeof(CuentasMapper));

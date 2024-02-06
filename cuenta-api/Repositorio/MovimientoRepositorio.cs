@@ -37,6 +37,11 @@ namespace cuenta_api.Repositorio
             return valor;
         }
 
+        public bool ExisteMovimiento(int id)
+        {
+            return _bdd.Movimiento.Any(c => c.Id == id);
+        }
+
         public Movimiento GetMovimiento(int id)
         {
             return _bdd.Movimiento.FirstOrDefault(c => c.Id == id);

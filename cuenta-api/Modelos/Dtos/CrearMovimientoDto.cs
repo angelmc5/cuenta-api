@@ -6,13 +6,19 @@ namespace cuenta_api.Modelos.Dtos
     public class CrearMovimientoDto
     {
 
-        public DateTime Fecha { get; set; }
-        public string TipoMovimiento { get; set; }
+        public enum TipoMovimientosCrear
+        {
+            Deposito,
+            Retiro
+        }
 
-        public Double Valor { get; set; }
+        [Required(ErrorMessage = "El tipo del movimiento es obligatorio")]
+        public TipoMovimientosCrear TipoMovimiento { get; set; }
 
-        public Double Saldo { get; set; }
+        [Required(ErrorMessage = "El valor del movimiento es obligatorio")]
+        public float Valor { get; set; }
 
+        [Required(ErrorMessage = "La cuenta del movimiento es obligatoria")]
         public int cuentaId { get; set; }
     }
 }

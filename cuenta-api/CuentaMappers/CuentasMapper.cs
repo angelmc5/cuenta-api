@@ -12,6 +12,7 @@ namespace cuenta_api.CuentaMappers
             CreateMap<Cuenta, CrearCuentaDto>().ReverseMap();
             CreateMap<Movimiento, MovimientoDto>().ReverseMap();
             CreateMap<Movimiento, CrearMovimientoDto>().ReverseMap();
+            CreateMap<Reporte, ReporteDto>().ReverseMap();
         }
     }
 }
