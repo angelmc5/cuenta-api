@@ -5,6 +5,6 @@ namespace cuenta_api.Repositorio.IRepositorio
 {
     public interface IReporteRepositorio
     {
-        ICollection<Reporte> GetReporte(DateTime inicioFecha, DateTime finFecha);
+        ICollection<Reporte> GetReporte(DateTime inicioFecha, DateTime finFecha, string cuenta);
     }
 }

@@ -23,9 +23,9 @@ namespace cuenta_api.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetReporte(DateTime inicioFecha, DateTime finFecha)
+        public IActionResult GetReporte(DateTime inicioFecha, DateTime finFecha, string cuenta)
         {
-            var listaReporte = _repoRepo.GetReporte(inicioFecha, finFecha);
+            var listaReporte = _repoRepo.GetReporte(inicioFecha, finFecha, cuenta);
 
             var listaReporteDto = new List<ReporteDto>();
 
