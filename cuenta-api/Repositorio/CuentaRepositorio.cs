@@ -15,48 +15,105 @@ namespace cuenta_api.Repositorio
 
         public bool ActualizarCuenta(Cuenta cuenta)
         {
-            _bdd.Cuenta.Update(cuenta);
-            return Guardar();
+            try
+            {
+                _bdd.Cuenta.Update(cuenta);
+                return Guardar();
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public bool BorrarCuenta(Cuenta cuenta)
         {
-            _bdd.Cuenta.Remove(cuenta);
-            return Guardar();
+            try
+            {
+
+                _bdd.Cuenta.Remove(cuenta);
+                return Guardar();
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public bool CrearCuenta(Cuenta cuenta)
         {
-            cuenta.Numero = cuenta.Numero.Trim().ToString();
-            _bdd.Cuenta.Add(cuenta);
-            return Guardar();
+            try
+            {
+                cuenta.Numero = cuenta.Numero.Trim().ToString();
+                _bdd.Cuenta.Add(cuenta);
+                return Guardar();
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public bool ExisteCuenta(string cuenta)
         {
-            bool valor = _bdd.Cuenta.Any(c => c.Numero.ToLower().Trim() == cuenta.ToLower().Trim());
-            return valor;
+            try
+            {
+                bool valor = _bdd.Cuenta.Any(c => c.Numero.ToLower().Trim() == cuenta.ToLower().Trim());
+                return valor;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public bool ExisteCuenta(string cuenta,int id)
         {
-            bool valor = _bdd.Cuenta.Any(c => c.Numero.ToLower().Trim() == cuenta.ToLower().Trim() && c.Id != id);
-            return valor;
+            try
+            {
+                bool valor = _bdd.Cuenta.Any(c => c.Numero.ToLower().Trim() == cuenta.ToLower().Trim() && c.Id != id);
+                return valor;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public bool ExisteCuenta(int id)
         {
-            return _bdd.Cuenta.Any(c => c.Id == id);
+            try
+            {
+                return _bdd.Cuenta.Any(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public ICollection<Cuenta> GetCuentas()
         {
-            return _bdd.Cuenta.OrderBy(c => c.Numero).ToList();
+            try
+            {
+                return _bdd.Cuenta.OrderBy(c => c.Numero).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public Cuenta GetCuenta(int id)
         {
-            return _bdd.Cuenta.FirstOrDefault(c => c.Id == id);
+            try
+            {
+                return _bdd.Cuenta.FirstOrDefault(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
+            }
         }
 
         public bool Guardar()
@@ -67,8 +124,7 @@ namespace cuenta_api.Repositorio
             }
             catch (Exception ex)
             {
-                //guardar excepcion en logs
-                return false;
+                throw new RepositoryException($"An error occurred while retrieving the entity: {ex.Message}");
             }
         }
     }

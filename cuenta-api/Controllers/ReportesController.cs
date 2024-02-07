@@ -2,6 +2,7 @@
 using cuenta_api.Data;
 using cuenta_api.Modelos;
 using cuenta_api.Modelos.Dtos;
+using cuenta_api.Repositorio;
 using cuenta_api.Repositorio.IRepositorio;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,19 +24,31 @@ namespace cuenta_api.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetReporte(DateTime inicioFecha, DateTime finFecha, string cuenta)
         {
-            var listaReporte = _repoRepo.GetReporte(inicioFecha, finFecha, cuenta);
-
-            var listaReporteDto = new List<ReporteDto>();
-
-            foreach (var item in listaReporte)
+            try
             {
-                listaReporteDto.Add(_mapper.Map<ReporteDto>(item));
-            }
+                var listaReporte = _repoRepo.GetReporte(inicioFecha, finFecha, cuenta);
+                var listaReporteDto = new List<ReporteDto>();
 
-            // Retorna el reporte como una respuesta HTTP en formato JSON.
-            return Ok(listaReporteDto);
+                foreach (var item in listaReporte)
+                {
+                    listaReporteDto.Add(_mapper.Map<ReporteDto>(item));
+                }
+
+                // Retorna el reporte como una respuesta HTTP en formato JSON.
+                return Ok(listaReporteDto);
+            }
+            catch (RepositoryException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otras excepciones
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
     }

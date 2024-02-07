@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using cuenta_api.Modelos;
 using cuenta_api.Modelos.Dtos;
+using cuenta_api.Repositorio;
 using cuenta_api.Repositorio.IRepositorio;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,17 +24,30 @@ namespace cuenta_api.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetCuentas()
         {
-            var listaCuentas = _ctaRepo.GetCuentas();
-
-            var listaCuentasDto = new List<CuentaDto>();
-
-            foreach (var item in listaCuentas)
+            try
             {
-                listaCuentasDto.Add(_mapper.Map<CuentaDto>(item));
+                var listaCuentas = _ctaRepo.GetCuentas();
+                var listaCuentasDto = new List<CuentaDto>();
+
+                foreach (var item in listaCuentas)
+                {
+                    listaCuentasDto.Add(_mapper.Map<CuentaDto>(item));
+                }
+                return Ok(listaCuentasDto);
             }
-            return Ok(listaCuentasDto);
+            catch (RepositoryException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otras excepciones
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
         [HttpGet("{id:int}", Name = "GetCuenta")]
@@ -41,16 +55,30 @@ namespace cuenta_api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetCuenta(int id)
         {
-            var itemCuenta = _ctaRepo.GetCuenta(id);
-
-            if (itemCuenta == null)
+            try
             {
-                return NotFound();
+                var itemCuenta = _ctaRepo.GetCuenta(id);
+
+                if (itemCuenta == null)
+                //if (itemCuenta.Equals(null))
+                {
+                    return NotFound();
+                }
+                var itemCuentaDto = _mapper.Map<CuentaDto>(itemCuenta);
+                return Ok(itemCuentaDto);
             }
-            var itemCuentaDto = _mapper.Map<CuentaDto>(itemCuenta);
-            return Ok(itemCuentaDto);
+            catch (RepositoryException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otras excepciones
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
         [HttpPost]
@@ -60,81 +88,120 @@ namespace cuenta_api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult CrearCuenta([FromBody] CrearCuentaDto crearCuentaDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            if (crearCuentaDto == null)
-            {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (crearCuentaDto == null)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            if (_ctaRepo.ExisteCuenta(crearCuentaDto.Numero))
-            {
-                ModelState.AddModelError("", "La cuenta ya existe");
-                return StatusCode(404, ModelState);
-            }
-            var cuenta = _mapper.Map<Cuenta>(crearCuentaDto);
-            if (!_ctaRepo.CrearCuenta(cuenta))
-            {
-                ModelState.AddModelError("", $"Error guardando el registro {cuenta.Numero}!");
-                return StatusCode(500, ModelState);
+                if (_ctaRepo.ExisteCuenta(crearCuentaDto.Numero))
+                {
+                    ModelState.AddModelError("", "La cuenta ya existe");
+                    return StatusCode(404, ModelState);
+                }
+                var cuenta = _mapper.Map<Cuenta>(crearCuentaDto);
+                if (!_ctaRepo.CrearCuenta(cuenta))
+                {
+                    ModelState.AddModelError("", $"Error guardando el registro {cuenta.Numero}!");
+                    return StatusCode(500, ModelState);
 
+                }
+                return CreatedAtRoute("GetCuenta", new { id = cuenta.Id }, cuenta);
             }
-            return CreatedAtRoute("GetCuenta", new { id = cuenta.Id }, cuenta);
+            catch (RepositoryException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otras excepciones
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
         [HttpPatch("{id:int}", Name = "ActualizarPatchCuenta")]
         [ProducesResponseType(201, Type = typeof(CuentaDto))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult ActualizarPatchCuenta(int id, [FromBody] CuentaDto cuentaDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (cuentaDto == null || id != cuentaDto.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (_ctaRepo.ExisteCuenta(cuentaDto.Numero, cuentaDto.Id))
+                {
+                    ModelState.AddModelError("", "La cuenta ya existe");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cuenta = _mapper.Map<Cuenta>(cuentaDto);
+                if (!_ctaRepo.ActualizarCuenta(cuenta))
+                {
+                    ModelState.AddModelError("", $"Error actualizando el registro {cuenta.Numero}!");
+                    return StatusCode(500, ModelState);
+
+                }
+                return NoContent();
             }
-            if (cuentaDto == null || id != cuentaDto.Id)
+            catch (RepositoryException ex)
             {
-                return BadRequest(ModelState);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otras excepciones
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
 
-            if (_ctaRepo.ExisteCuenta(cuentaDto.Numero,cuentaDto.Id))
-            {
-                ModelState.AddModelError("", "La cuenta ya existe");
-                return StatusCode(404, ModelState);
-            }
-
-            var cuenta = _mapper.Map<Cuenta>(cuentaDto);
-            if (!_ctaRepo.ActualizarCuenta(cuenta))
-            {
-                ModelState.AddModelError("", $"Error actualizando el registro {cuenta.Numero}!");
-                return StatusCode(500, ModelState);
-
-            }
-            return NoContent();
         }
 
         [HttpDelete("{id:int}", Name = "EliminarCuenta")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult EliminarCuenta(int id)
         {
-            if (!_ctaRepo.ExisteCuenta(id))
+            try
             {
-                return NotFound();
+                if (!_ctaRepo.ExisteCuenta(id))
+                {
+                    return NotFound();
+                }
+
+                var cuenta = _ctaRepo.GetCuenta(id);
+
+                if (!_ctaRepo.BorrarCuenta(cuenta))
+                {
+                    ModelState.AddModelError("", $"Error al eliminar el registro {cuenta.Numero}!");
+                    return StatusCode(500, ModelState);
+
+                }
+                return NoContent();
             }
-
-            var cuenta = _ctaRepo.GetCuenta(id);
-
-            if (!_ctaRepo.BorrarCuenta(cuenta))
+            catch (RepositoryException ex)
             {
-                ModelState.AddModelError("", $"Error al eliminar el registro {cuenta.Numero}!");
-                return StatusCode(500, ModelState);
-
+                return NotFound(ex.Message);
             }
-            return NoContent();
+            catch (Exception ex)
+            {
+                // Manejo de otras excepciones
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
     }
 }
